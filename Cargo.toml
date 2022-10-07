@@ -1,0 +1,13 @@
+[package]
+name = "mekena"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata.nix]
+build = true
+
+[dependencies]
+async-trait = "0.1.57"
+dynstack = "0.4.0"
+thiserror = "1.0.37"
+tokio = { version = "1.21.2", features = ["rt", "macros", "sync"] }
