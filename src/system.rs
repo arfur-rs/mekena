@@ -1,20 +1,12 @@
-use crate::ecs::world::World;
-
-pub struct System {
-    /// Stores worldwide state.
-    world: World,
-}
+/// A system. The father of the framework.
+pub struct System {}
 
 impl System {
-    pub fn start(&mut self) {}
-}
-
-impl Default for System {
-    fn default() -> Self {
-        Self {
-            world: Default::default(),
-        }
+    pub fn new() -> Self {
+        Self {}
     }
+
+    pub fn start(&mut self) {}
 }
 
 #[cfg(test)]
@@ -23,11 +15,11 @@ mod tests {
 
     #[test]
     fn builds() {
-        System::default();
+        System::new();
     }
 
     #[test]
     fn starts() {
-        System::default().start();
+        System::new().start();
     }
 }
