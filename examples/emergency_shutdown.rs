@@ -1,23 +1,19 @@
-use mekena::{context::Context, prelude::*};
+//! An extension of the "Hello World" application that runs "emergency shutdown"
+//! instead of graceful shutdown.
 
-/// The main function of the application. Here, we simply register all of our
-/// actors and states, and run the system.
-///
-/// We unwrap to a `miette` error here, but of course, you can unwrap in any way
-/// you choose.
+use mekena::prelude::*;
+
 #[mekena::main]
 async fn main(system: System) -> Result<(), miette::Error> {
     system
         .add_node(SomeNode1)
         .add_node(SomeNode2::default())
-        //     .add_state(SomeState)
         .start()
         .await?;
 
     Ok(())
 }
 
-/// The structure of `SomeNode1`. Notice that this node does not keep any state.
 struct SomeNode1;
 
 #[async_trait::async_trait]
@@ -40,8 +36,6 @@ impl Node for SomeNode1 {
     }
 }
 
-/// The structure of `SomeNode2`. Notice that this node keeps some state. It
-/// also derives default, as an easy constructor.
 #[derive(Default)]
 struct SomeNode2 {
     counter: i32,
@@ -58,7 +52,7 @@ impl Node for SomeNode2 {
     async fn running(&mut self, ctx: Context) {
         loop {
             if self.counter == 10 {
-                ctx.shutdown().await.unwrap();
+                ctx.emergency_shutdown().await.unwrap();
             } else {
                 println!("SomeNode2 running...");
                 self.counter += 1;

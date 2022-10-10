@@ -31,7 +31,7 @@ pub fn main(
     let tokio: TokenStream = args
         .tokio
         .as_deref()
-        .unwrap_or("mekena::tokio")
+        .unwrap_or("mekena::re::tokio")
         .parse()
         .unwrap();
 

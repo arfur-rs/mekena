@@ -1,17 +1,23 @@
 use crate::{
+    context::Context,
     executor::{Executor, ExecutorError},
     node::Node,
 };
 
 /// A system. The father of the framework.
 pub struct System {
+    _context: Context,
     executor: Executor,
 }
 
 impl System {
     pub fn new() -> Self {
+        let context = Context::new();
+        let executor = Executor::new(context.clone());
+
         Self {
-            executor: Executor::new(),
+            _context: context,
+            executor,
         }
     }
 
