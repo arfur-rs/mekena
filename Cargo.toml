@@ -8,10 +8,11 @@ build = true
 
 [dependencies]
 async-trait = "0.1.57"
-dynstack = "0.4.0"
+futures = "0.3.24"
 mekena-macros = { version = "0.1.0", path = "mekena-macros" }
+miette = "5.3.0"
 thiserror = "1.0.37"
-tokio = { version = "1.21.2", features = ["rt", "macros", "sync"] }
+tokio = { version = "1.21.2", features = ["rt-multi-thread", "macros", "sync", "time"] }
 
 [dev-dependencies]
 miette = { version = "5.3.0", features = ["fancy"] }
