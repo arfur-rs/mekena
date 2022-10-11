@@ -3,7 +3,7 @@
 
 use mekena::prelude::*;
 
-#[mekena::main]
+#[main]
 async fn main(system: System) -> Result<(), miette::Error> {
     system
         .add_node(SomeNode1)
@@ -16,7 +16,7 @@ async fn main(system: System) -> Result<(), miette::Error> {
 
 struct SomeNode1;
 
-#[async_trait::async_trait]
+#[node]
 impl Node for SomeNode1 {
     async fn starting(&mut self, _ctx: Context) {
         println!("SomeNode1 starting...");
@@ -41,7 +41,7 @@ struct SomeNode2 {
     counter: i32,
 }
 
-#[async_trait::async_trait]
+#[node]
 impl Node for SomeNode2 {
     async fn starting(&mut self, _ctx: Context) {
         println!("SomeNode2 starting...");

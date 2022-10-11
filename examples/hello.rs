@@ -5,7 +5,7 @@ use mekena::{context::Context, prelude::*};
 ///
 /// We unwrap to a `miette` error here, but of course, you can unwrap in any way
 /// you choose.
-#[mekena::main]
+#[main]
 async fn main(system: System) -> Result<(), miette::Error> {
     system
         .add_node(SomeNode1)
@@ -20,7 +20,7 @@ async fn main(system: System) -> Result<(), miette::Error> {
 /// The structure of `SomeNode1`. Notice that this node does not keep any state.
 struct SomeNode1;
 
-#[async_trait::async_trait]
+#[node]
 impl Node for SomeNode1 {
     async fn starting(&mut self, _ctx: Context) {
         println!("SomeNode1 starting...");
@@ -47,7 +47,7 @@ struct SomeNode2 {
     counter: i32,
 }
 
-#[async_trait::async_trait]
+#[node]
 impl Node for SomeNode2 {
     async fn starting(&mut self, _ctx: Context) {
         println!("SomeNode2 starting...");
