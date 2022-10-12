@@ -21,21 +21,11 @@ struct SomeNode1;
 /// A node that will loop {} listening for a message of a specific type.
 #[node]
 impl Node for SomeNode1 {
-    async fn starting(&mut self, _ctx: &Context, _mb: &Mailbox) {
-        println!("SomeNode1 starting...");
-    }
-
     async fn running(&mut self, _ctx: &Context, mb: &Mailbox) {
         loop {
-            println!("SomeNode1 running...");
-            let m: Option<Box<MyMessage>> = mb.recv().await.unwrap();
+            let m: Box<MyMessage> = mb.recv().await.unwrap();
             println!("Received a message: {m:?}");
-            tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         }
-    }
-
-    async fn stopping(&mut self, _ctx: &Context, _mb: &Mailbox) {
-        println!("SomeNode1 stopping...");
     }
 }
 
@@ -46,10 +36,6 @@ struct SomeNode2 {
 
 #[node]
 impl Node for SomeNode2 {
-    async fn starting(&mut self, _ctx: &Context, _mb: &Mailbox) {
-        println!("SomeNode2 starting...");
-    }
-
     async fn running(&mut self, ctx: &Context, mb: &Mailbox) {
         loop {
             if self.counter == 10 {
@@ -60,13 +46,8 @@ impl Node for SomeNode2 {
                 mb.send(MyMessage(self.counter)).await.unwrap();
             }
 
-            println!("SomeNode2 running...");
             tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
             self.counter += 1;
         }
-    }
-
-    async fn stopping(&mut self, _ctx: &Context, _mb: &Mailbox) {
-        println!("SomeNode2 stopping...");
     }
 }

@@ -24,6 +24,7 @@
               cargo-release
               cargo-tarpaulin
               cargo-nextest
+              cargo-criterion
 
               git-cliff
             ];

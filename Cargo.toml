@@ -17,7 +17,12 @@ thiserror = "1.0.37"
 tokio = { version = "1.21.2", features = ["rt-multi-thread", "macros", "sync", "time"] }
 
 [dev-dependencies]
+criterion = { version = "0.4.0", features = ["async_tokio"] }
 miette = { version = "5.3.0", features = ["fancy"] }
+
+[[bench]]
+name = "messaging"
+harness = false
 
 [workspace]
 members = [ "mekena-macros" ]

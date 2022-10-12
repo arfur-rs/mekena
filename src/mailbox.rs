@@ -1,9 +1,8 @@
 use std::{
-    any::{Any, TypeId},
-    collections::HashMap,
+    any::{Any},
 };
 
-use crossbeam::sync::ShardedLock;
+
 use flume::{Receiver, Sender};
 
 use crate::message::Message;
@@ -28,13 +27,11 @@ impl Mailbox {
         Ok(())
     }
 
-    pub async fn recv<M: Message + 'static>(&self) -> Result<Option<Box<M>>, MailboxError> {
-        let t = TypeId::of::<M>();
-
+    pub async fn recv<M: Message + 'static>(&self) -> Result<Box<M>, MailboxError> {
         loop {
             let received = self.receiver.recv_async().await?;
             match received.downcast::<M>() {
-                Ok(x) => return Ok(Some(x)),
+                Ok(x) => return Ok(x),
                 _ => (),
             };
         }
