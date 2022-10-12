@@ -2,7 +2,8 @@
 
 use flume::{Receiver, RecvError, SendError, Sender};
 
-#[derive(Clone)]
+/// The `Context` type keeps track of system-wide state. Specifically, it owns
+/// the shutdown feature.
 pub struct Context {
     shutdown_sender: Sender<()>,
     shutdown_receiver: Receiver<()>,

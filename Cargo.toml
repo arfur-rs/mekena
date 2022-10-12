@@ -8,6 +8,7 @@ build = true
 
 [dependencies]
 async-trait = "0.1.57"
+crossbeam = "0.8.2"
 flume = "0.10.14"
 futures = "0.3.24"
 mekena-macros = { version = "0.1.0", path = "mekena-macros" }
