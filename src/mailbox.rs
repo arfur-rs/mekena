@@ -1,7 +1,4 @@
-use std::{
-    any::{Any},
-};
-
+use std::any::Any;
 
 use flume::{Receiver, Sender};
 
