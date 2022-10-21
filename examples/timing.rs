@@ -10,7 +10,12 @@ lazy_static! {
 
 #[main]
 async fn main(system: System) -> Result<(), miette::Error> {
-    system.add_node(SomeNode1).start().await?;
+    system
+        .add_node(SomeNode1)
+        .add_node(SomeNode1)
+        .add_node(SomeNode1)
+        .start()
+        .await?;
 
     Ok(())
 }
