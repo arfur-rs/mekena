@@ -76,7 +76,7 @@ pub fn main(
     let function_contents = function.block;
 
     quote! {
-        #[#tokio::main(crate = #tokio)]
+        #[#tokio::main(crate = "#tokio")]
         async fn main() -> #function_output {
             // You should be bringing `System` into scope yourself.`
             let mut #system_name = System::new();
