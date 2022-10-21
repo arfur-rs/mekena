@@ -22,20 +22,20 @@ struct SomeNode1;
 
 #[node]
 impl Node for SomeNode1 {
-    async fn starting(&mut self, _ctx: &Context, _mb: &Mailbox) {
+    async fn starting(&mut self, _ctx: &Context) {
         println!("SomeNode1 starting...");
     }
 
     /// This will run indefinitely. Another process will have to kill the ctx in
     /// order for `Self::stopping` to be called.
-    async fn running(&mut self, _ctx: &Context, _mb: &Mailbox) {
+    async fn running(&mut self, _ctx: &Context) {
         loop {
             println!("SomeNode1 running...");
             tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         }
     }
 
-    async fn stopping(&mut self, _ctx: &Context, _mb: &Mailbox) {
+    async fn stopping(&mut self, _ctx: &Context) {
         println!("SomeNode1 stopping...");
     }
 }
@@ -49,16 +49,16 @@ struct SomeNode2 {
 
 #[node]
 impl Node for SomeNode2 {
-    async fn starting(&mut self, _ctx: &Context, _mb: &Mailbox) {
+    async fn starting(&mut self, _ctx: &Context) {
         println!("SomeNode2 starting...");
     }
 
     /// This will run until the counter reaches 10. Then, it will stop the
     /// *whole* context.
-    async fn running(&mut self, ctx: &Context, _mb: &Mailbox) {
+    async fn running(&mut self, ctx: &Context) {
         loop {
             if self.counter == 10 {
-                ctx.shutdown().await.unwrap();
+                ctx.shutdown().await;
             } else {
                 println!("SomeNode2 running...");
                 tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
@@ -68,7 +68,7 @@ impl Node for SomeNode2 {
         }
     }
 
-    async fn stopping(&mut self, _ctx: &Context, _mb: &Mailbox) {
+    async fn stopping(&mut self, _ctx: &Context) {
         println!("SomeNode2 stopping...");
     }
 }

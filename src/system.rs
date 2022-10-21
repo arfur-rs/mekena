@@ -1,12 +1,11 @@
 use tokio::select;
 
-use crate::{context::Context, mailbox::Mailbox, node::Node};
+use crate::{context::Context, node::Node};
 
 pub struct System {
     state: SystemState,
     nodes: Vec<Box<dyn Node + 'static>>, // TODO: can we figure this out at compile time?
     context: Context,
-    mailbox: Mailbox,
 }
 
 #[derive(Copy, Clone, Debug, Default)]
@@ -29,7 +28,6 @@ impl System {
             state: SystemState::default(),
             nodes: Vec::new(),
             context: Context::new(),
-            mailbox: Mailbox::new(),
         }
     }
 
@@ -56,7 +54,7 @@ impl System {
 
         for node in &mut self.nodes {
             let handle = async {
-                node.starting(&self.context, &self.mailbox).await;
+                node.starting(&self.context).await;
             };
 
             handles.push(handle);
@@ -66,8 +64,7 @@ impl System {
 
         select! {
             _ = output => Ok(NextState::Continue),
-            _ = self.context.wait_for_shutdown() => Ok(NextState::Stop),
-            _ = self.context.wait_for_emergency_shutdown() => Err(SystemError::Shutdown),
+            _ = self.context.await_shutdown() => Ok(NextState::Stop),
         }
     }
 
@@ -77,7 +74,7 @@ impl System {
 
         for node in &mut self.nodes {
             let handle = async {
-                node.running(&self.context, &self.mailbox).await;
+                node.running(&self.context).await;
             };
 
             handles.push(handle);
@@ -87,8 +84,7 @@ impl System {
 
         select! {
             _ = output => Ok(NextState::Continue),
-            _ = self.context.wait_for_shutdown() => Ok(NextState::Stop),
-            _ = self.context.wait_for_emergency_shutdown() => Err(SystemError::Shutdown),
+            _ = self.context.await_shutdown() => Ok(NextState::Stop),
         }
     }
 
@@ -98,7 +94,7 @@ impl System {
 
         for node in &mut self.nodes {
             let handle = async {
-                node.stopping(&self.context, &self.mailbox).await;
+                node.stopping(&self.context).await;
             };
 
             handles.push(handle);
@@ -108,8 +104,7 @@ impl System {
 
         select! {
             _ = output => Ok(NextState::Continue),
-            _ = self.context.wait_for_shutdown() => Ok(NextState::Stop),
-            _ = self.context.wait_for_emergency_shutdown() => Err(SystemError::Shutdown),
+            _ = self.context.await_shutdown() => Ok(NextState::Stop),
         }
     }
 

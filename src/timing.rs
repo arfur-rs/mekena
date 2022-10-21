@@ -1,3 +1,5 @@
+//! Let's experiment with how accurate the timing is of `mekena-messaging`.
+
 use mekena::prelude::*;
 
 #[main]

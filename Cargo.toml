@@ -11,13 +11,33 @@ async-trait = "0.1.57"
 crossbeam = "0.8.2"
 flume = "0.10.14"
 futures = "0.3.24"
-mekena-macros = { version = "0.1.0", path = "mekena-macros" }
 miette = "5.3.0"
 thiserror = "1.0.37"
-tokio = { version = "1.21.2", features = ["rt-multi-thread", "macros", "sync", "time"] }
+dashmap = "5.4.0"
+
+[dependencies.mekena-macros]
+version = "0.1.0"
+path = "mekena-macros"
+
+[dependencies.mekena-messaging]
+version = "0.1.0"
+path = "mekena-messaging"
+
+[dependencies.mekena-state]
+version = "0.1.0"
+path = "mekena-state"
+
+[dependencies.mekena-util]
+version = "0.1.0"
+path = "mekena-util"
+
+[dependencies.tokio]
+version = "1.21.2"
+features = ["rt-multi-thread", "macros", "sync", "time"]
 
 [dev-dependencies]
 criterion = { version = "0.4.0", features = ["async_tokio"] }
+lazy_static = "1.4.0"
 miette = { version = "5.3.0", features = ["fancy"] }
 
 [[bench]]
@@ -25,4 +45,8 @@ name = "messaging"
 harness = false
 
 [workspace]
-members = [ "mekena-macros" ]
+members = [ "mekena-messaging"
+          , "mekena-state"
+          , "mekena-util"
+          , "mekena-macros"
+          ]

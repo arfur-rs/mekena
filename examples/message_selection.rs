@@ -8,7 +8,7 @@ use tokio::select;
 async fn main(system: System) -> Result<(), miette::Error> {
     system
         .add_node(SomeNode1)
-        .add_node(SomeNode2::default())
+        .add_node(SomeNode2)
         .start()
         .await?;
 
@@ -25,25 +25,24 @@ struct SomeNode1;
 
 #[node]
 impl Node for SomeNode1 {
-    async fn running(&mut self, _ctx: &Context, mb: &Mailbox) {
+    async fn running(&mut self, ctx: &Context) {
         loop {
             select! {
                 // Hooray for monomorphization!
-                x = mb.recv::<MyMessage1>() => println!("{x:?}"),
-                x = mb.recv::<MyMessage2>() => println!("{x:?}"),
+                x = ctx.recv::<MyMessage1>() => println!("{x:?}"),
+                x = ctx.recv::<MyMessage2>() => println!("{x:?}"),
             };
         }
     }
 }
 
-#[derive(Default)]
 struct SomeNode2;
 
 #[node]
 impl Node for SomeNode2 {
-    async fn running(&mut self, _: &Context, mb: &Mailbox) {
+    async fn running(&mut self, ctx: &Context) {
         loop {
-            mb.send(MyMessage1).await.unwrap();
+            ctx.send(MyMessage1).await.unwrap();
             tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
         }
     }

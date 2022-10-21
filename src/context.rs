@@ -1,63 +1,77 @@
-//! A runtime context. Contains state and messages.
+use std::any::Any;
 
-use flume::{Receiver, RecvError, SendError, Sender};
+use dashmap::mapref::one::{Ref, RefMut};
+use mekena_messaging::{
+    mailbox::Mailbox,
+    prelude::{MailboxError, Message},
+};
+use mekena_state::StateManager;
+use mekena_util::shutdown::ShutdownManager;
 
-/// The `Context` type keeps track of system-wide state. Specifically, it owns
-/// the shutdown feature.
 pub struct Context {
-    shutdown_sender: Sender<()>,
-    shutdown_receiver: Receiver<()>,
-
-    emergency_shutdown_sender: Sender<()>,
-    emergency_shutdown_receiver: Receiver<()>,
+    mailbox: Mailbox,
+    state: StateManager,
+    shutdown: ShutdownManager,
 }
-
-unsafe impl Send for Context {}
-unsafe impl Sync for Context {}
 
 impl Context {
     pub fn new() -> Self {
-        let (shutdown_sender, shutdown_receiver) = flume::bounded(1);
-        let (emergency_shutdown_sender, emergency_shutdown_receiver) = flume::bounded(1);
-
         Self {
-            shutdown_sender,
-            shutdown_receiver,
-            emergency_shutdown_sender,
-            emergency_shutdown_receiver,
+            mailbox: Mailbox::new(),
+            state: StateManager::new(),
+            shutdown: ShutdownManager::new(),
         }
     }
 
-    pub async fn shutdown(&self) -> Result<()> {
-        self.shutdown_sender.send_async(()).await?;
-        Ok(())
+    /// Send any message: [`Message`] to the mailbox.
+    pub async fn send<M: Message + 'static>(&self, message: M) -> Result<(), ContextError> {
+        self.mailbox.send(message).await.map_err(ContextError::from)
     }
 
-    pub async fn wait_for_shutdown(&self) -> Result<()> {
-        self.shutdown_receiver.recv_async().await?;
-        Ok(())
+    /// Asynchronously wait for a new message with type M: [`Message`].
+    pub async fn recv<M: Message + 'static>(&self) -> Result<Box<M>, ContextError> {
+        self.mailbox.recv::<M>().await.map_err(ContextError::from)
     }
 
-    pub async fn emergency_shutdown(&self) -> Result<()> {
-        self.emergency_shutdown_sender.send_async(()).await?;
-        Ok(())
+    /// Inserts a key and a value into the map. Returns the old value associated
+    /// with the key if there was one.
+    ///
+    /// **Locking behaviour: May deadlock if called when holding any sort of
+    /// reference into the map.**. Unfortunately, this is inherited from
+    /// [`dashmap`].
+    pub fn insert<V: 'static + Send + Sync>(&self, key: String, value: V) -> Option<Box<V>> {
+        self.state.insert(key, value)
     }
 
-    pub async fn wait_for_emergency_shutdown(&self) -> Result<()> {
-        self.emergency_shutdown_receiver.recv_async().await?;
-        Ok(())
+    /// Get a immutable reference to an entry in the map
+    ///
+    /// **Locking behaviour: May deadlock if called when holding a mutable
+    /// reference into the map.** Unfortunately, this is inherited from
+    /// [`dashmap`].
+    pub fn get(&self, key: String) -> Option<Ref<String, Box<dyn Any + Send + Sync>>> {
+        self.state.get(key)
+    }
+
+    /// Get a mutable reference to an entry in the map
+    ///
+    /// **Locking behaviour: May deadlock if called when holding any sort of
+    /// reference into the map.** Unfortunately, this is inherited from
+    /// [`dashmap`].
+    pub fn get_mut(&self, key: String) -> Option<RefMut<String, Box<dyn Any + Send + Sync>>> {
+        self.state.get_mut(key)
+    }
+
+    pub async fn shutdown(&self) {
+        self.shutdown.shutdown().await
+    }
+
+    pub async fn await_shutdown(&self) {
+        self.shutdown.await_shutdown().await
     }
 }
 
 #[derive(thiserror::Error, miette::Diagnostic, Debug)]
-pub enum ContextError<T: std::fmt::Debug> {
+pub enum ContextError {
     #[error(transparent)]
-    #[diagnostic(code(mekena::context::receive_error))]
-    ReceiveError(#[from] RecvError),
-
-    #[error(transparent)]
-    #[diagnostic(code(mekena::context::send_error))]
-    SendError(#[from] SendError<T>),
+    MailboxError(#[from] MailboxError),
 }
-
-type Result<T> = std::result::Result<T, ContextError<()>>;
