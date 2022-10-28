@@ -39,9 +39,10 @@ pub fn main(
     let tokio: TokenStream = args
         .tokio
         .as_deref()
-        .unwrap_or("mekena::re::tokio")
+        .unwrap_or("mekena_tokio")
         .parse()
         .unwrap();
+    let tokio_stringified: String = tokio.to_string().split_whitespace().collect();
 
     let _asyncness = function
         .sig
@@ -76,10 +77,13 @@ pub fn main(
     let function_contents = function.block;
 
     quote! {
-        #[#tokio::main(crate = "#tokio")]
+        // An unfortunate workaround for Tokio's macro, since it can't parse
+        // crate = "mekena::re::tokio".
+        use mekena::re::tokio as mekena_tokio;
+
+        #[#tokio::main(crate = #tokio_stringified)]
         async fn main() -> #function_output {
-            // You should be bringing `System` into scope yourself.`
-            let mut #system_name = System::new();
+            let mut #system_name = mekena::system::System::new();
             #function_contents
         }
     }
