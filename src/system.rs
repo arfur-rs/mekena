@@ -1,4 +1,3 @@
-use futures::SinkExt;
 use tokio::select;
 
 use crate::{context::Context, node::Node};
