@@ -3,8 +3,8 @@
 
 use crate::context::Context;
 
-#[async_trait::async_trait]
-pub trait Node: Send + Sync {
+#[async_trait::async_trait(?Send)]
+pub trait Node {
     async fn starting(&mut self, _ctx: &Context) {}
     async fn running(&mut self, _ctx: &Context) {}
     async fn stopping(&mut self, _ctx: &Context) {}

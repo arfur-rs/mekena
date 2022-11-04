@@ -1,3 +1,4 @@
+use futures::SinkExt;
 use tokio::select;
 
 use crate::{context::Context, node::Node};
@@ -50,17 +51,12 @@ impl System {
 
     async fn starting(&mut self) -> Result<NextState, SystemError> {
         self.state = SystemState::Starting;
-        let mut handles = Vec::with_capacity(self.nodes.len());
 
-        for node in &mut self.nodes {
-            let handle = async {
-                node.starting(&self.context).await;
-            };
-
-            handles.push(handle);
-        }
-
-        let output = futures::future::join_all(handles);
+        let output = futures::future::join_all(
+            self.nodes
+                .iter_mut()
+                .map(|x: &mut Box<dyn Node + 'static>| x.starting(&self.context)),
+        );
 
         select! {
             _ = output => Ok(NextState::Continue),
@@ -70,17 +66,12 @@ impl System {
 
     async fn running(&mut self) -> Result<NextState, SystemError> {
         self.state = SystemState::Running;
-        let mut handles = Vec::with_capacity(self.nodes.len());
 
-        for node in &mut self.nodes {
-            let handle = async {
-                node.running(&self.context).await;
-            };
-
-            handles.push(handle);
-        }
-
-        let output = futures::future::join_all(handles);
+        let output = futures::future::join_all(
+            self.nodes
+                .iter_mut()
+                .map(|x: &mut Box<dyn Node + 'static>| x.running(&self.context)),
+        );
 
         select! {
             _ = output => Ok(NextState::Continue),
@@ -90,17 +81,12 @@ impl System {
 
     async fn stopping(&mut self) -> Result<NextState, SystemError> {
         self.state = SystemState::Stopping;
-        let mut handles = Vec::with_capacity(self.nodes.len());
 
-        for node in &mut self.nodes {
-            let handle = async {
-                node.stopping(&self.context).await;
-            };
-
-            handles.push(handle);
-        }
-
-        let output = futures::future::join_all(handles);
+        let output = futures::future::join_all(
+            self.nodes
+                .iter_mut()
+                .map(|x: &mut Box<dyn Node + 'static>| x.stopping(&self.context)),
+        );
 
         select! {
             _ = output => Ok(NextState::Continue),
