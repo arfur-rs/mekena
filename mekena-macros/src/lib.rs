@@ -115,7 +115,7 @@ pub fn node(
         .unwrap();
 
     quote! {
-        #[#async_trait::async_trait]
+        #[#async_trait::async_trait(?Send)]
         #item
     }
     .into()
