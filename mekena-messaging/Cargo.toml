@@ -1,9 +1,13 @@
 [package]
 name = "mekena-messaging"
+description = "Messaging utilities for the Mekena scheduling system."
 version = "0.1.0"
-edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
+repository = "https://github.com/bobbbay/mekena"
+
+edition = "2021"
+rust-version = "1.62"
 
 [dependencies]
 flume = "0.10.14"
