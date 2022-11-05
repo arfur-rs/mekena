@@ -1,5 +1,6 @@
 use flume::{Receiver, Sender};
 
+#[derive(Debug)]
 pub struct ShutdownManager {
     sender: Sender<()>,
     receiver: Receiver<()>,

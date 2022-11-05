@@ -20,6 +20,7 @@ use crate::message::Message;
 /// collection of [`flume`] channels, it stores any type T as
 /// [`std::any::Any`], but checks to make sure your type is right with
 /// `downcast`.
+#[derive(Debug)]
 pub struct Mailbox {
     sender: Sender<Box<dyn Any + Send + Sync>>,
     receiver: Receiver<Box<dyn Any + Send + Sync>>,

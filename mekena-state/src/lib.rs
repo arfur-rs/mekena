@@ -10,6 +10,7 @@ use dashmap::{
     DashMap,
 };
 
+#[derive(Debug)]
 pub struct StateManager {
     states: DashMap<String, Box<dyn Any + Send + Sync>>,
 }

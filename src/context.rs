@@ -8,6 +8,7 @@ use mekena_messaging::{
 use mekena_state::StateManager;
 use mekena_util::shutdown::ShutdownManager;
 
+#[derive(Debug)]
 pub struct Context {
     mailbox: Mailbox,
     state: StateManager,
